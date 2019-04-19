@@ -40,6 +40,12 @@
         <activity android:name=".Mapset" />
         <activity android:name=".Graphset" />
         <activity android:name=".Datasets" />
+        <activity android:name=".Indoor" />
+        <activity android:name=".Outdoor" />
+        <activity android:name=".Settings" />
+        <activity android:name=".FetchActivity" />
+        <activity android:name=".ShowData" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCqOYsIWVbf0w9TGDlqb_oD5pux4UJSRXk"/>

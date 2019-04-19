@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/main_color"
-    tools:context="com.example.saurabhomer.cityprobe.Datasets">
+    tools:context="com.example.evnapp.Datasets">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,10 +15,9 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="snooze"
+        android:text="Snooze"
         android:id="@+id/snooze"
-        android:onClick="btnsnooze"
-        />
+        android:onClick="btnsnooze"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,6 +25,27 @@
         android:textStyle="bold"
         android:text="no massage"
         android:textColor="#fe3b2824"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="17dp">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Time"
+            android:id="@+id/start_time"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Time"
+            android:id="@+id/change_time"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Time"
+            android:id="@+id/end_time"/>
+    </LinearLayout>
     <TextView
         android:id="@+id/data_msg"
         android:layout_width="match_parent"

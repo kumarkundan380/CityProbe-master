@@ -1,80 +1,87 @@
 package com.example.evnapp;
 
-/**
- * Created by saurabh omer on 06-Oct-18.
- */
-
 public class DataModel {
 
-    String Current_Date_time;
-    String Lat;
-    String Lang;
-    String Date;
-    String time;
+    private String id;
+    private String current_Date_time;
+    private String lat;
+    private String lang;
+    private String date;
+    private String time;
 
-    String Pm1;
-    String Pm25;
-    String CO2;
-    String Pm10;
-    String No2;
-    String Co;
-    String humidity;
-    String temperature;
+    private String pm1;
+    private String pm25;
+    private String co2;
+    private String pm10;
+    private String no2;
+    private String co;
+    private String humidity;
+    private String temperature;
 
-    public DataModel(String current_Date_time, String lat, String lang, String date, String time, String pm1, String pm25, String pm10, String no2, String CO2,String co, String humidity,String temperature) {
-        Current_Date_time = current_Date_time;
-        Lat = lat;
-        Lang = lang;
-        Date = date;
-        this.CO2=CO2;
+    public DataModel(String _id, String current_Date_time, String lat, String lang, String date, String time, String pm1, String pm25, String pm10, String no2, String CO2, String co, String humidity, String temperature) {
+        this.id=_id;
+        this.current_Date_time = current_Date_time;
+        this.lat = lat;
+        this.lang = lang;
+        this.date = date;
+        this.co2=CO2;
         this.time = time;
         this.temperature = temperature;
-        Pm1 = pm1;
-        Pm25 = pm25;
-        Pm10 = pm10;
-        No2 = no2;
-        Co = co;
+        this.pm1 = pm1;
+        this.pm25 = pm25;
+        this.pm10 = pm10;
+        this.no2 = no2;
+        this.co = co;
         this.humidity = humidity;
     }
+    public DataModel(){}
 
-    public String getCO2() {
-        return CO2;
+    public String get_id() {
+        return id;
     }
 
-    public void setCO2(String CO2) {
-        this.CO2 = CO2;
+    public void set_id(String _id) {
+        this.id = _id;
+    }
+
+    public String getCo2() {
+        return co2;
+    }
+
+    public void setCo2(String co2) {
+        this.co2 = co2;
     }
 
     public String getCurrent_Date_time() {
-        return Current_Date_time;
+        return current_Date_time;
     }
 
     public void setCurrent_Date_time(String current_Date_time) {
-        Current_Date_time = current_Date_time;
+        this.current_Date_time = current_Date_time;
     }
 
     public String getLat() {
-        return Lat;
+        return lat;
     }
 
     public void setLat(String lat) {
-        Lat = lat;
+        this.lat = lat;
     }
 
     public String getLang() {
-        return Lang;
+        return lang;
     }
 
     public void setLang(String lang) {
-        Lang = lang;
+        this.lang = lang;
     }
 
     public String getDate() {
-        return Date;
+        return date;
     }
 
     public void setDate(String date) {
-        Date = date;
+        this.date = date;
     }
 
     public String getTime() {
@@ -94,43 +101,43 @@ public class DataModel {
     }
 
     public String getPm1() {
-        return Pm1;
+        return this.pm1;
     }
 
     public void setPm1(String pm1) {
-        Pm1 = pm1;
+        this.pm1 = pm1;
     }
 
     public String getPm25() {
-        return Pm25;
+        return this.pm25;
     }
 
     public void setPm25(String pm25) {
-        Pm25 = pm25;
+        this.pm25 = pm25;
     }
 
     public String getPm10() {
-        return Pm10;
+        return this.pm10;
     }
 
     public void setPm10(String pm10) {
-        Pm10 = pm10;
+        this.pm10 = pm10;
     }
 
     public String getNo2() {
-        return No2;
+        return this.no2;
     }
 
     public void setNo2(String no2) {
-        No2 = no2;
+        this.no2 = no2;
     }
 
     public String getCo() {
-        return Co;
+        return this.co;
     }
 
     public void setCo(String co) {
-        Co = co;
+        this.co = co;
     }
 
     public String getHumidity() {

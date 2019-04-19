@@ -5,17 +5,19 @@ import android.bluetooth.BluetoothSocket;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.telephony.SmsManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,26 +42,24 @@ import static com.example.evnapp.Bluetooth_set.STATE_CONNECTION_FAILED;
 import static com.example.evnapp.Bluetooth_set.STATE_LISTNING;
 import static com.example.evnapp.Bluetooth_set.STATE_MESSAGE_RECEIVED;
 
-import static com.example.evnapp.MainActivity.connectbt;
-import static com.example.evnapp.CardMenu.flag_datasets;
-
 @RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
-public class Datasets extends AppCompatActivity {
+public class Datasets extends AppCompatActivity implements View.OnClickListener {
     BluetoothSocket socket;
-    SendReceive sendReceive;
+    Datasets.SendReceive sendReceive;
     static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     File file;
     private static ToneGenerator toneGenerator;
     int snooze_count = 0;
     FirebaseDatabase database;
     DatabaseReference Ref;
+    DatabaseReference classInfoRef;
+    Constants constants=null;
 
     int sms_send_time = 0;
     TextView data_msg,alertmsg;
-    private boolean plotData = true;
-    String dgas = null;
+    private String InstituteName, ClassRoomId, Occupants, AC, Fans, Window, Doors, StartTime, EndTime;
+    private String date;
 
-    boolean cond=true;
     private TextView status;
 
     @Override
@@ -66,15 +67,56 @@ public class Datasets extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_datasets);
 
-        data_msg = (TextView) findViewById(R.id.data_msg);
-        alertmsg = (TextView) findViewById(R.id.alertmsg);
-        status = (TextView) findViewById(R.id.status);
-        data_msg.setMovementMethod(new ScrollingMovementMethod());
-         FirebaseApp.initializeApp(this);
-        database=FirebaseDatabase.getInstance();
-        Ref=database.getReference("Data");
+        data_msg = findViewById(R.id.data_msg);
+        alertmsg = findViewById(R.id.alertmsg);
+        status = findViewById(R.id.status);
+        findViewById(R.id.start_time).setOnClickListener(this);
+        findViewById(R.id.change_time).setOnClickListener(this);
+        findViewById(R.id.end_time).setOnClickListener(this);
 
-        ClientClass clientClass = new ClientClass(Bluetooth_set.connectbt);
+        data_msg.setMovementMethod(new ScrollingMovementMethod());
+        constants = new Constants();
+
+        date = DateFormat.getDateInstance().format(Calendar.getInstance().getTime());
+
+        FirebaseApp.initializeApp(this);
+        database= FirebaseDatabase.getInstance();
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null)
+        {
+            InstituteName = bundle.getString(constants.INSTITUTE_ID);
+            ClassRoomId = bundle.getString(constants.CLASSROOM_ID);
+            Occupants = bundle.getString(constants.OCCUPANTS_ID);
+            AC = bundle.getString(constants.AC_ID);
+            Fans = bundle.getString(constants.FANS_ID);
+            Doors = bundle.getString(constants.DOORS_ID);
+            Window = bundle.getString(constants.WINDOW_ID);
+            StartTime = bundle.getString(constants.START_TIME_ID);
+            EndTime = bundle.getString(constants.END_TIME_ID);
+            /*+ AC+ Fans+ Doors+ Window+ + null+ class_status*/
+
+            //Toast.makeText(this, "H: "+StartTime, Toast.LENGTH_SHORT).show();
+            //String date = DateFormat.getDateInstance().format(Calendar.getInstance().getTime());
+            classInfoRef=database.getReference("Indoor").child(InstituteName)
+                    .child(ClassRoomId).child("Classroom Data")
+                    .child(date);
+            String timeStamp = DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
+            Toast.makeText(this, "Time: "+timeStamp, Toast.LENGTH_SHORT).show();
+
+            if (Occupants == null)
+                class_status = "Class Not Started";
+            if(StartTime==null)
+                StartTime=timeStamp;
+            classInfoRef.push().setValue(new ClassRoomData(class_status, Doors, AC, StartTime, EndTime, Window,Occupants, Fans));
+
+
+            Ref=database.getReference("Indoor").child(InstituteName)
+                    .child(ClassRoomId).child("Pollution Data")
+                    .child(date);
+        }
+
+
+        Datasets.ClientClass clientClass = new Datasets.ClientClass(Bluetooth_set.connectbt);
         clientClass.start();
 
     }
@@ -130,7 +172,8 @@ public class Datasets extends AppCompatActivity {
                     AQI aqi=new AQI();
                     String worning_msg="";
                     if(arr_data.length>9) {
-                        Ref.push().setValue(new DataModel(java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()),String.valueOf(0.00),String.valueOf(0.00).trim(),arr_data[0].trim(),arr_data[1].trim(),arr_data[2].trim(),arr_data[3].trim(),arr_data[4].trim(),arr_data[5].trim(),arr_data[6].trim(),arr_data[7].trim(),arr_data[8].trim(),arr_data[9].trim()));
+                        String _id=Ref.push().getKey();
+                        Ref.child(_id).setValue(new DataModel(_id, java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()), String.valueOf(0.00), String.valueOf(0.00).trim(),arr_data[0].trim(),arr_data[1].trim(),arr_data[2].trim(),arr_data[3].trim(),arr_data[4].trim(),arr_data[5].trim(),arr_data[6].trim(),arr_data[7].trim(),arr_data[8].trim(),arr_data[9].trim()));
                         worning_msg += aqi.aqiTest((float) Double.parseDouble(arr_data[4].trim()), 0, 50, 51, 100, 101, 250, 251, 350, 351, 430, "PM10");
                         worning_msg +=   aqi.aqiTest(Float.parseFloat(arr_data[3].trim()),0,30,31,60,61,90,91,120,121,250,"PM2.5");
                         worning_msg += aqi.aqiTest(Float.parseFloat(arr_data[7].trim()), 0.0f, 1.0f, 1.1f, 2.0f, 2.1f, 10.0f, 10.0f, 17.0f, 17.0f, 34.0f, "CO");
@@ -156,61 +199,14 @@ public class Datasets extends AppCompatActivity {
                             if (snooze_count != 0) {
                                 snooze_count--;
                             }
-
-
-//                    if(flag==1){
-//
-//                        if(dgas=="pm1")
-//                        {
-//                            Log.e("A","pm1");
-//
-//
-//                        }
-//                        else if(dgas=="pm25")
-//                        {
-//                            Log.e("A","pm25");
-//
-//
-//
-//                        }
-//                        else if(dgas=="pm10")
-//                        {
-//                            Log.e("A","pm10");
-//
-//
-//
-//                        }
-//                        else if(dgas=="no2")
-//                        {
-//                            Log.e("A","no2");
-//
-////
-//
-//                        }
-//                        else if(dgas=="co")
-//                        {
-//                            Log.e("A","co");
-//
-//
-//                        }
-//                        else if(dgas=="co2")
-//                        {
-//                            Log.e("A","co2");
-//
-//                        }
-//                        plotData = false;
-//                    }
-//
-//                    msg_box.append(tempMsg);
-//                    break;
                         }
                     }
-               }
+            }
             return true;
         }
     });
 
-     void playTone( ) {
+    void playTone( ) {
 
         try {
 
@@ -224,7 +220,6 @@ public class Datasets extends AppCompatActivity {
                 @Override
                 public void run() {
                     if (toneGenerator != null) {
-                        //Log.d(TAG, "ToneGenerator released");
                         toneGenerator.release();
                         toneGenerator = null;
                     }
@@ -236,25 +231,91 @@ public class Datasets extends AppCompatActivity {
         }
     }
 
-    private class ClientClass extends Thread {
-       BluetoothDevice device;
+    String class_status=null;
 
+    @Override
+    public void onClick(View v) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        final View dialogView = getLayoutInflater().inflate(R.layout.starttime_dialog,null);
+        dialogBuilder.setView(dialogView);
+        final TextView textViewTime = dialogView.findViewById(R.id.textViewTime);
+        final EditText editTextOccupants = dialogView.findViewById(R.id.occupants);
+        final EditText editTextAC = dialogView.findViewById(R.id.ac);
+        final EditText editTextFans = dialogView.findViewById(R.id.fan);
+        final EditText editTextWindow = dialogView.findViewById(R.id.window);
+        final EditText editTextDoors = dialogView.findViewById(R.id.door);
+        final EditText editTextStartTime = dialogView.findViewById(R.id.start_time);
+        final Button saveClassInfo = dialogView.findViewById(R.id.saveClassInfo);
+
+        switch (v.getId())
+        {
+            case R.id.start_time:
+                textViewTime.setText(R.string.class_started);
+                class_status = "Class Started";
+                break;
+
+            case R.id.change_time:
+                textViewTime.setText(R.string.class_middle);
+                class_status = "Changes in Middle of Class";
+                break;
+
+            case R.id.end_time:
+                textViewTime.setText(R.string.class_ended);
+                class_status = "Class Ended";
+                break;
+        }
+        final AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+
+        saveClassInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Occupants = editTextOccupants.getText().toString().trim();
+                AC = editTextAC.getText().toString().trim();
+                Fans = editTextFans.getText().toString().trim();
+                Window = editTextWindow.getText().toString().trim();
+                Doors = editTextDoors.getText().toString().trim();
+                StartTime = editTextStartTime.getText().toString().trim();
+                String s = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+
+                EndTime = null;
+                switch (v.getId())
+                {
+                    case R.id.change_time:
+                        StartTime = null;
+                        EndTime = null;
+                        break;
+
+                    case R.id.end_time:
+                        StartTime = null;
+                        EndTime = StartTime;
+                        break;
+                }
+
+                classInfoRef=database.getReference("Indoor").child(InstituteName).child(ClassRoomId).child("Classroom Data").child(date);
+                ClassRoomData classRoomInfo = new ClassRoomData( class_status, Doors, AC, StartTime, EndTime, Window,Occupants, Fans);
+                classInfoRef.push().setValue(classRoomInfo);
+
+                alertDialog.dismiss();
+            }
+        });
+
+    }
+
+    private class ClientClass extends Thread {
+        BluetoothDevice device;
 
         public ClientClass(BluetoothDevice device1) {
             device = device1;
-
-                socket = CardMenu.socket;
-
+            socket = CardMenu.socket;
         }
 
         public void run() {
-
-              // socket.connect();
-                Message message = Message.obtain();
-                message.what = STATE_CONNECTED;
-                handler.sendMessage(message);
-               sendReceive = new SendReceive(CardMenu.socket);
-                sendReceive.start();
+            Message message = Message.obtain();
+            message.what = STATE_CONNECTED;
+            handler.sendMessage(message);
+            sendReceive = new Datasets.SendReceive(CardMenu.socket);
+            sendReceive.start();
 
         }
     }
@@ -282,7 +343,7 @@ public class Datasets extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-           inputStream = tempIn;
+            inputStream = tempIn;
             outputStream = tempOut;
 
         }
@@ -292,10 +353,9 @@ public class Datasets extends AppCompatActivity {
             final byte delimiter = 10;
             int bytes;
             int readBufferPosition = 0;
-            while (cond) {
+            while (true) {
 
                 try {
-
                     int bytesAvailable = inputStream.available();
 
                     if (bytesAvailable > 0) {
@@ -310,33 +370,21 @@ public class Datasets extends AppCompatActivity {
                                 readBufferPosition = 0;
 
                                 handler.obtainMessage(STATE_MESSAGE_RECEIVED, data).sendToTarget();
-
-
                             } else
-                                {
+                            {
                                 buffer[readBufferPosition++] = b;
                             }
                         }
-
                     }
-
-                    //bytes = inputStream.read(buffer);
-                    //handler.obtainMessage(STATE_MESSAGE_RECEIVED,bytes,-1,buffer).sendToTarget();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
-
         }
     }
+
     @Override
     protected void onPause() {
         super.onPause();
-        cond=false;
-
     }
-
-
 }

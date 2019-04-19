@@ -6,19 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.Map;
-
 public class CardMenu extends AppCompatActivity {
-    CardView menu1,menu2,menu3,menu4,menu5;
+    CardView menu1,menu2,menu3,menu4,menu5,menu6,menu7;
     BluetoothAdapter bt=null;
     static int flag_datasets=0;
     static BluetoothSocket socket=null;
@@ -27,11 +25,14 @@ public class CardMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_menu);
+
         menu1=(CardView) findViewById(R.id.menu1);
         menu2=(CardView) findViewById(R.id.menu2);
         menu3=(CardView) findViewById(R.id.menu3);
         menu4=(CardView) findViewById(R.id.menu4);
         menu5=(CardView) findViewById(R.id.menu5);
+        menu6=(CardView) findViewById(R.id.menu6);
+        menu7=(CardView) findViewById(R.id.menu7);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{
                     android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -41,7 +42,7 @@ public class CardMenu extends AppCompatActivity {
             },10);
         }
 
-        bt=BluetoothAdapter.getDefaultAdapter();
+        bt= BluetoothAdapter.getDefaultAdapter();
         //Toast.makeText(this, ""+socket, Toast.LENGTH_SHORT).show();
         if(!bt.isEnabled())
         {
@@ -120,7 +121,21 @@ public class CardMenu extends AppCompatActivity {
 
             }
         });
+        menu6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i=new Intent(CardMenu.this,Settings.class);
+                startActivity(i);
 
+            }
+        });
+        menu7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i=new Intent(CardMenu.this, FetchActivity.class);
+                startActivity(i);
+            }
+        });
 
     }
 
@@ -128,7 +143,7 @@ public class CardMenu extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-       // Toast.makeText(this, ""+socket, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, ""+socket, Toast.LENGTH_SHORT).show();
         int flag_datasets=0;
 
     }
